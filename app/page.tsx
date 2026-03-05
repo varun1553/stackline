@@ -44,17 +44,27 @@ export default function Home() {
   >(undefined);
   const [loading, setLoading] = useState(true);
 
+
+
   useEffect(() => {
     fetch("/api/categories")
       .then((res) => res.json())
-      .then((data) => setCategories(data.categories));
+      .then((data) => setCategories(data.categories))
+      .catch((err) => {
+        console.error(err);
+      })
+
   }, []);
 
   useEffect(() => {
     if (selectedCategory) {
-      fetch(`/api/subcategories`)
+      fetch(`/api/subcategories?category=${selectedCategory}`)
         .then((res) => res.json())
-        .then((data) => setSubCategories(data.subCategories));
+        .then((data) => setSubCategories(data.subCategories))
+        .catch((err) => {
+          console.error(err);
+        })
+
     } else {
       setSubCategories([]);
       setSelectedSubCategory(undefined);
@@ -63,6 +73,7 @@ export default function Home() {
 
   useEffect(() => {
     setLoading(true);
+
     const params = new URLSearchParams();
     if (search) params.append("search", search);
     if (selectedCategory) params.append("category", selectedCategory);
@@ -72,7 +83,17 @@ export default function Home() {
     fetch(`/api/products?${params}`)
       .then((res) => res.json())
       .then((data) => {
-        setProducts(data.products);
+        if (Array.isArray(data?.products)) {
+          setProducts(data.products);
+        } else {
+          setProducts([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching products:", err);
+        setProducts([]);
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, [search, selectedCategory, selectedSubCategory]);
@@ -96,7 +117,10 @@ export default function Home() {
 
             <Select
               value={selectedCategory}
-              onValueChange={(value) => setSelectedCategory(value || undefined)}
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                setSelectedSubCategory(undefined);
+              }}
             >
               <SelectTrigger className="w-full md:w-[200px]">
                 <SelectValue placeholder="All Categories" />
@@ -166,7 +190,7 @@ export default function Home() {
                   key={product.stacklineSku}
                   href={{
                     pathname: "/product",
-                    query: { product: JSON.stringify(product) },
+                    query: { sku: product.stacklineSku },
                   }}
                 >
                   <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
@@ -174,7 +198,7 @@ export default function Home() {
                       <div className="relative h-48 w-full overflow-hidden rounded-t-lg bg-muted">
                         {product.imageUrls[0] && (
                           <Image
-                            src={product.imageUrls[0]}
+                            src={product.imageUrls?.[0] || "/placeholder.png"}
                             alt={product.title}
                             fill
                             className="object-contain p-4"
