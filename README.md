@@ -328,24 +328,24 @@ This improves:
 
 During this review, several improvements were implemented across the application to address:
 
-UI component bugs
+- UI component bugs
 
-API request handling
+- API request handling
 
-Filtering logic
+- Filtering logic
 
-Search performance
+- Search performance
 
-Image loading configuration
+- Image loading configuration
 
-Routing and data security
+- Routing and data security
 
-These fixes significantly improve:
+- These fixes significantly improve:
 
-Application stability
+- Application stability
 
-User experience
+- User experience
 
-Code reliability
+- Code reliability
 
-Maintainability of the codebase
+- Maintainability of the codebase
